@@ -2,6 +2,7 @@
 
 ## Stephanie Goldberg - slgold
 - Demo: https://slgold95.github.io/hw05-road-generation/
+- -![](image.png)
 
 ## References
 - Noise: Class slides https://docs.google.com/presentation/d/e/2PACX-1vQAK1Xeb7GGqLoDFz_iu9JuXMb-qE9jqKbZDkrXNSybXweqeIn3xvv4LMxetcM9GEugoU0Q0Ft1qUH-/pub?start=false&loop=false&delayms=60000&slide=id.g4cae677c4f_0_852 and Book of Shaders for FBM and Worley Noise
@@ -43,7 +44,7 @@
 - ![](Density3.png)
 - Change Highway Angle
 -![](noAngle.png)
--![](Angle.png)
+-![](angle.png)
 
 
 
