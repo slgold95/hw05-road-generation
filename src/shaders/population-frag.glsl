@@ -46,23 +46,57 @@ float fbm (in vec2 st) {
     return total;
 }
 
-vec3 getWater(vec2 inPos) {
+vec2 random2( vec2 p ) {
+    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
+}
+
+float worleyNoise(float x, float y, float rows, float cols){
+    float posX = x * cols / 20.0;
+    float posY = y * rows / 20.0;
+    float minDist = 50.0;
+
+    for (float i = -1.0; i < 2.0; i++) {
+        for (float j = -1.0; j < 2.0; j++) {
+            vec2 grid = vec2(floor(posX) + i, floor(posY) + j);
+            vec2 noiseTerm = grid + random2(grid + vec2(2.0, 0.0));
+            float currDist = distance(vec2(posX, posY), noiseTerm);
+            if (currDist <= minDist) {
+                minDist = currDist;
+            }
+        }
+    }
+    return minDist;
+}
+
+float getWater(vec2 inPos) {
 	vec2 pos = inPos - vec2(1.0, 0.5);
 	float noiseTerm = fbm(pos / 2.0);
 	noiseTerm = clamp((noiseTerm - 0.378) / 0.622, 0.0, 1.0);
   if(noiseTerm == 0.0){
-    // return color for the water
+    // water
+    return 1.0;
+  }
+  else{
+    // land
+    return 0.0;
+  }	
+}
+
+vec3 getPopulationDensity(vec2 inPos) {
+	float water = getWater(inPos);
+	vec2 pos = inPos - vec2(-0.02, 0);
+	float noiseTerm = worleyNoise(pos.x, pos.y, 25.0, 25.0);
+  if(water == 1.0){
     return vec3(0.0863, 0.2902, 0.9608);
   }
   else{
-    // return color for the land
-    return vec3(0.3765, 0.7725, 0.1804);
+    return vec3(0.3765, 0.7725, 0.1804) * vec3(0.0, 1.0 - (noiseTerm * u_Time), 0.0);
   }	
 }
 
 void main() {
   // display final coloring	
   vec2 tempPos = vec2(fs_Pos.x, fs_Pos.y);
-  vec3 color = getWater(tempPos);
+  vec3 color = getPopulationDensity(tempPos);
 	out_Col = vec4(color, 1.0);
 }

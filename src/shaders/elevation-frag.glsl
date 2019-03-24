@@ -4,6 +4,7 @@ precision highp float;
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform float u_Time; 
+uniform float u_Slider;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
@@ -46,23 +47,38 @@ float fbm (in vec2 st) {
     return total;
 }
 
-vec3 getWater(vec2 inPos) {
+float getWater(vec2 inPos) {
 	vec2 pos = inPos - vec2(1.0, 0.5);
 	float noiseTerm = fbm(pos / 2.0);
 	noiseTerm = clamp((noiseTerm - 0.378) / 0.622, 0.0, 1.0);
   if(noiseTerm == 0.0){
-    // return color for the water
+    // water
+    return 1.0;
+  }
+  else{
+    // land
+    return 0.0;
+  }	
+}
+
+vec3 getTerrainElevation(vec2 inPos) {
+	float water = getWater(inPos);
+	vec2 pos = inPos - vec2(1.0, 0.5);
+	float noiseTerm = fbm(pos / 2.0);
+	noiseTerm = clamp((noiseTerm - 0.2), 0.0, 1.0);
+  if(water == 1.0){
+    // water
     return vec3(0.0863, 0.2902, 0.9608);
   }
   else{
-    // return color for the land
-    return vec3(0.3765, 0.7725, 0.1804);
-  }	
+    // land
+    return  vec3(0.3765, 0.7725, 0.1804) * vec3(0.0, (noiseTerm * 1.5 * u_Slider), 0.0);
+  }		
 }
 
 void main() {
   // display final coloring	
   vec2 tempPos = vec2(fs_Pos.x, fs_Pos.y);
-  vec3 color = getWater(tempPos);
+  vec3 color = getTerrainElevation(tempPos);
 	out_Col = vec4(color, 1.0);
 }
