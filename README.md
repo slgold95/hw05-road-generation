@@ -35,7 +35,7 @@
 - The higher the population density is in the city, more (and taller) buildings are created there. On the outskirts of city hub areas, less and smaller buildings exist.
 - Building textures utilize noise functions. Going for a stylized city-esque aethestic, I also had buildings appear to change color with the day/night cycle of the sky.
 - Worley Noise used to determine population density:
-- ![](waterSlope.png)
+- ![](worleyCells.png)
 - Three types of buildings: Houses, Residential Buildings, and Skyscrapers.
 - Small homes have two windows and are 2 stories maximum height.
   + Small Homes:
