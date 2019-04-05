@@ -12,26 +12,26 @@ in vec4 vs_Col; // An instanced rendering attribute; each particle instance has 
 in vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene
 in vec2 vs_UV; // Non-instanced, and presently unused in main(). Feel free to use it for your meshes.
 
-// Instance Rendering Columns
+// unique to each instance - used for transform matrix
 in vec4 vs_TransformCol1;
 in vec4 vs_TransformCol2;
 in vec4 vs_TransformCol3;
 in vec4 vs_TransformCol4;
 
+out vec4 fs_Col;
 out vec4 fs_Pos;
 out vec4 fs_Nor;
-out vec4 fs_Col;
+out float fs_Height;
 
 void main() {
     fs_Pos = vs_Pos;
     fs_Nor = vs_Nor;
     fs_Col = vs_Col;
+    fs_Height = vs_TransformCol2[1];    
 
-    mat4 transforms = mat4(vs_TransformCol1, vs_TransformCol2, vs_TransformCol3, vs_TransformCol4);
-    vec4 newPos = transforms * vs_Pos;
-    // working with dimensions 2000 x 20000
-    vec3 temp = newPos.xyz / 1000.0 - 1.0;     
-    // raise the roads up a bit
-    vec4 outPos = vec4(temp.x * 25.0, 0.125, temp.z * 25.0, 1.0);
-    gl_Position = u_ViewProj * outPos;
+    vec4 transformPos = mat4(vs_TransformCol1, vs_TransformCol2, vs_TransformCol3, vs_TransformCol4) * vs_Pos;
+    vec3 newPos = transformPos.xyz / 1000.0 - 1.0;
+    //                      render them within 25-25 screenquad size
+    vec4 outPos = vec4(newPos.x * 25.0, transformPos.y + 0.1, newPos.z * 25.0, 1.0);
+    gl_Position = u_ViewProj * outPos;   
 }

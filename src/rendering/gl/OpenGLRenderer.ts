@@ -7,12 +7,11 @@ import ShaderProgram from './ShaderProgram';
 // In this file, `gl` is accessible because it is imported above
 class OpenGLRenderer {
 
-   // Buffers for texture
-   frameBuffer : any;
-   texture : any;
+  // Buffers to recover texture data
+  frameBuffer : any;
+  texture : any;
 
   constructor(public canvas: HTMLCanvasElement) {
-    
   }
 
   setClearColor(r: number, g: number, b: number, a: number) {
@@ -48,9 +47,9 @@ class OpenGLRenderer {
     for (let drawable of drawables) {
       prog.draw(drawable);
     }
-  }  
+  }
 
-  // Creating render buffers for textures --------------------------------------------------------------------
+  // Creating render buffers for our 2D fbm textures
   createRenderBuffers() {
     // Create Texture
     this.texture = gl.createTexture();
@@ -85,8 +84,8 @@ class OpenGLRenderer {
     gl.readPixels(0, 0, this.canvas.width, this.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
     gl.deleteFramebuffer(this.frameBuffer);
     return data;
-  } 
-  // ------------------------------------------------------------------------------------------------------
+  }
+
 };
 
 export default OpenGLRenderer;

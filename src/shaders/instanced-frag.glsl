@@ -1,15 +1,15 @@
 #version 300 es
 precision highp float;
 
-in vec4 fs_Col;
 in vec4 fs_Pos;
+in vec4 fs_Nor;
+in vec4 fs_Col;
 
 out vec4 out_Col;
 
-void main()
-{
-    //float dist = 1.0 - (length(fs_Pos.xyz) * 2.0);
-    //out_Col = vec4(dist) * fs_Col;
+void main() {
     //out_Col = fs_Col;
-    out_Col = vec4(0.2392, 0.2863, 0.2431, 1.0);
+    //vec3 color = vec3(0.2471, 0.2353, 0.2353); //gray
+    vec3 color = vec3(0.4392, 0.3725, 0.1922);
+    out_Col = vec4(color, 1.0);
 }

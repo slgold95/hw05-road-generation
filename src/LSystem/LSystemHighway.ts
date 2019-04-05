@@ -1,9 +1,9 @@
 import {vec2, vec3, mat4, quat} from 'gl-matrix';
 import Point from './Point';
 import Edge from './Edge';
-import HTurtle from './HTurtle';
-import {inWater, getPopulationDensity, getTerrainElevation} from './NoiseFuncs';
 import TextureFuncs from './TextureFuncs';
+import RoadTurtle from './RoadTurtle';
+import HighwayTurtle from './HighwayTurtle';
 
 class LSystemHighway {
 	// array for the points
@@ -13,16 +13,16 @@ class LSystemHighway {
 	// texture data
 	texture: TextureFuncs;
 	// iterations
-	iterations: number;
+	iters: number;
 
-    constructor(data: Uint8Array) {       
+	constructor(data: Uint8Array) {       
         this.pointArray = [];
 		this.edgeArray = [];
 		this.texture = new TextureFuncs(data);
     }
 
-    // make the LSystem - could use gui parameters
-    createLSystem(guiAngle: number) {  
+	// make the LSystem - could use gui parameters
+    createLSystem(iters: number, gridSize: number, population:number) {  
 		// turtle array
 		let turtleStack: any[] = [];
 		// point array
@@ -31,27 +31,19 @@ class LSystemHighway {
         this.edgeArray = [];       
 
         // Highway Turtle
-        let start: Point = new Point(vec3.fromValues(1500, 0, 200)); // center of the screen
+        let start: Point = new Point(vec3.fromValues(400, 0, 300)); // center of the screen
 		let dir: vec3 = vec3.fromValues(0, 0, 1);
 		let up: vec3 = vec3.fromValues(0, 1, 0);
         let right: vec3 = vec3.fromValues(1, 0, 0);        
         let q: quat = quat.fromValues(0, 0, 0, 1);
 
 		// new paths
-        let destination1: Point = new Point(vec3.fromValues(0, 0, 1900));
-		let t1: HTurtle = new HTurtle(start, dir, up, right, q, destination1, this.texture, this.pointArray, this.edgeArray);
-		// new point
-        let destination2: Point = new Point(vec3.fromValues(1000, 0, 2000));
-		let t2: HTurtle = new HTurtle(start, dir, up, right, q, destination2, this.texture, this.pointArray, this.edgeArray);
-		// if the slider value for angle goes up, add that rotation amount in
-		if(guiAngle > 1.0){
-		t1.rot(-40.0 + guiAngle);
-		t2.rot(guiAngle);
-		}
-		else{
-			t1.rot(-40.0)
-			t2.rot(0.0);
-		}
+		let destination1: Point = new Point(vec3.fromValues(1000, 0, 1000));
+		let destination2: Point = new Point(vec3.fromValues(850, 0, 1900));
+		let t1: HighwayTurtle = new HighwayTurtle(start, dir, up, right, q, destination1, true, false, false, this.texture, this.pointArray, this.edgeArray, iters, gridSize * 10, population);
+		let t2: HighwayTurtle = new HighwayTurtle(start, dir, up, right, q, destination2, false, false, false, this.texture, this.pointArray, this.edgeArray, iters, gridSize * 10, population);
+		t1.rot(-45.0);
+	
 		// add the new turtles
         turtleStack.push(t1);
         turtleStack.push(t2);
@@ -60,15 +52,15 @@ class LSystemHighway {
         while (turtleStack.length != 0.0) {
 			// get the turtle off the stack
             let curr = turtleStack.pop();
-            let turtleList = curr.expandTurtle();
+            let turtleList = curr.generateTurtles();
             for (let i: number = 0.0; i < turtleList.length; i++) {
                 turtleStack.push(turtleList[i]);
             }
         }
     }
 
-    // VBO data
-    makeVBOs() {
+  // VBO data
+  makeVBOs() {
     let c1Array: number[] = [];
     let c2Array: number[] = [];
     let c3Array: number[] = [];
@@ -123,5 +115,5 @@ class LSystemHighway {
     return data;
     }
 
-}; 
+};
 export default LSystemHighway;

@@ -18,9 +18,35 @@ class Edge {
 		// identify if the edge is a highway or not
 		this.HighwayBool = HighwayCheck;
 	}	
+
+	gridFunc(value: number) {
+		let s1: number = this.end.position[2] - this.start.position[2];
+		let s2: number = this.end.position[0] - this.start.position[0];	
+		let upper: number = Math.max(this.end.position[2], this.start.position[2]);
+		let lower: number = Math.min(this.end.position[2], this.start.position[2]);
+		let avgX: number;
+		let avgY: number;
+		let avgZ: number;
+		// check against upper and lower limits
+    if (lower > value || upper < value) {
+        return false;
+		}
+		if (s1 == 0.0) {
+			avgX = (this.start.position[0] + this.end.position[0]) / 2.0;
+			avgY = (this.start.position[1] + this.end.position[1] / 2.0);
+			avgZ = (this.start.position[2] + this.end.position[2]) / 2.0;
+			return vec3.fromValues(avgX, avgY, avgZ);
+		}
+    if (s2 == 0.0) {
+    	return this.start.position[0];
+    }    
+	  else {    
+    return ((value / (s1 / s2)) - (this.start.position[2] / (s1 / s2)) + this.start.position[0]);
+    }    
+	}
 	
 	// Transforms matrix for rendering edges
-	makeTransformMat() {
+ makeTransformMat() {	
 		let upDir: vec3 = vec3.fromValues(0, 0, 1);
 		let moveDir: vec3 = vec3.fromValues(0, 0, 0);
 		vec3.subtract(moveDir, this.end.position, this.start.position);   
@@ -46,11 +72,11 @@ class Edge {
 		let width: number;
 		// if it's a highway, draw thicker line
 		if(this.HighwayBool == true){
-			width = 30.0;
+			width = 25.0;
 		}
 		// if it's not a highway (it's a road) - draw thinner line
 		else if(this.HighwayBool == false){
-			width = 10.0;
+			width = 8.0;
 		}	
 		let scaleVec: vec3 = vec3.fromValues(width, 1.0, vec3.length(moveDir));
 
@@ -59,8 +85,8 @@ class Edge {
 	  return tempMat; // the overall transforms
 	}
 
-	// Intersection between two lines
-	getIntersection(newPoint1: Point, newPoint2: Point) {
+	// Intersection between two lines	
+getIntersection(newPoint1: Point, newPoint2: Point) {
 		// initial points in first line
 		let startX: number = this.start.position[0];
 		let startY: number = this.start.position[1];
@@ -89,6 +115,14 @@ class Edge {
 		}
 		// no intersection
     return null;
+	}
+
+	// break an edge into two
+	splitEdge(p : Point) {	
+		let point: Point = this.end;
+		let splitEdge: Edge = new Edge(p, point, this.HighwayBool);
+		this.end = p;
+		return splitEdge;
 	}
 };
 export default Edge;

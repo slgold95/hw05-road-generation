@@ -3,8 +3,7 @@ precision highp float;
 
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
-uniform float u_Time; 
-uniform float u_Slider;
+uniform float u_Time;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
@@ -42,10 +41,12 @@ float fbm (in vec2 st) {
     return total;
 }
 
+// used with worley noise
 vec2 random2( vec2 p ) {
     return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
 }
 
+// worley noise
 float worleyNoise(float x, float y, float rows, float cols){
     float posX = x * cols / 20.0;
     float posY = y * rows / 20.0;
@@ -91,36 +92,18 @@ vec3 elevationMap(vec2 uv) {
   }
   else{
     // land
-    return  vec3(0.3765, 0.7725, 0.1804) * vec3(0.0, (noiseTerm * 1.5), 0.0);
+    return  vec3(0.3765, 0.7725, 0.1804);
   }		
-}
-
-vec3 populationMap(vec2 uv) {
-  vec2 offset = vec2(0.02, 0.0);
-	float water = inWater(uv);
-	vec2 pos = uv + offset;
-	float noiseTerm = worleyNoise(pos.x, pos.y, 150.0, 150.0);
-  if(water == 1.0){
-    return vec3(0.0863, 0.2902, 0.9608);
-  }
-  else{
-    return vec3(0.3765, 0.7725, 0.1804) * vec3(0.0, 1.0 - (noiseTerm), 0.0);
-  }	
 }
 
 vec3 getColor(float x, float y) {
   float remapX = mix(-0.15, 0.35, x);
 	float remapY = mix(0.057, 0.557, y);
-	vec2 temp = vec2(remapX, remapY);
-  vec3 colorElevation = elevationMap(temp);
-  vec3 colorPopulation = populationMap(temp);
-  vec3 color = vec3(colorElevation * colorPopulation);
-  return color;
+	return elevationMap(vec2(remapX, remapY));
 }
 
 void main() {
-  // display final coloring	
   float x = (fs_Pos.x + 1.0) / 2.0;
-	float y = (fs_Pos.y + 1.0) / 2.0;
+	float y = (fs_Pos.y + 1.0) / 2.0;	   
 	out_Col = vec4(getColor(x, y), 1.0);
 }

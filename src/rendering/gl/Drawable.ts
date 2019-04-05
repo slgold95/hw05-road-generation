@@ -7,28 +7,23 @@ abstract class Drawable {
   bufPos: WebGLBuffer;
   bufNor: WebGLBuffer;
   bufTranslate: WebGLBuffer;
+  bufTransformCol1: WebGLBuffer;
+  bufTransformCol2: WebGLBuffer;
+  bufTransformCol3: WebGLBuffer;
+  bufTransformCol4: WebGLBuffer;
   bufCol: WebGLBuffer;
   bufUV: WebGLBuffer;
-
-  // Added for HW 5
-  // Buffers for the cols of transform matrix
-  bufTransformC1: WebGLBuffer;
-  bufTransformC2: WebGLBuffer;
-  bufTransformC3: WebGLBuffer;
-  bufTransformC4: WebGLBuffer;
 
   idxGenerated: boolean = false;
   posGenerated: boolean = false;
   norGenerated: boolean = false;
   colGenerated: boolean = false;
-  translateGenerated: boolean = false;  
+  translateGenerated: boolean = false;
+  transformCol1Generated: boolean = false;
+  transformCol2Generated: boolean = false;
+  transformCol3Generated: boolean = false;
+  transformCol4Generated: boolean = false;
   uvGenerated: boolean = false;
-
-  // Added for HW5
-  transformC1Generated: boolean = false;
-  transformC2Generated: boolean = false;
-  transformC3Generated: boolean = false;
-  transformC4Generated: boolean = false;
 
   numInstances: number = 0; // How many instances of this Drawable the shader program should draw
 
@@ -39,13 +34,12 @@ abstract class Drawable {
     gl.deleteBuffer(this.bufPos);
     gl.deleteBuffer(this.bufNor);
     gl.deleteBuffer(this.bufCol);
-    gl.deleteBuffer(this.bufTranslate);    
+    gl.deleteBuffer(this.bufTranslate);
+    gl.deleteBuffer(this.bufTransformCol1);
+    gl.deleteBuffer(this.bufTransformCol2);
+    gl.deleteBuffer(this.bufTransformCol3);
+    gl.deleteBuffer(this.bufTransformCol4);
     gl.deleteBuffer(this.bufUV);
-    // Added for HW5
-    gl.deleteBuffer(this.bufTransformC1); 
-    gl.deleteBuffer(this.bufTransformC2);
-    gl.deleteBuffer(this.bufTransformC3);
-    gl.deleteBuffer(this.bufTransformC4);
   }
 
   generateIdx() {
@@ -73,29 +67,29 @@ abstract class Drawable {
     this.bufTranslate = gl.createBuffer();
   }
 
+  generateTransformC1() {
+    this.transformCol1Generated = true;
+    this.bufTransformCol1 = gl.createBuffer();
+  }
+
+  generateTransformC2() {
+    this.transformCol2Generated = true;
+    this.bufTransformCol2 = gl.createBuffer();
+  }
+
+  generateTransformC3() {
+    this.transformCol3Generated = true;
+    this.bufTransformCol3 = gl.createBuffer();
+  }
+
+  generateTransformC4() {
+    this.transformCol4Generated = true;
+    this.bufTransformCol4 = gl.createBuffer();
+  }
+
   generateUV() {
     this.uvGenerated = true;
     this.bufUV = gl.createBuffer();
-  }
-  // Added for HW5
-  generateTransformC1() {
-    this.transformC1Generated = true;
-    this.bufTransformC1 = gl.createBuffer();
-  }
-  // Added for HW5
-  generateTransformC2() {
-    this.transformC2Generated = true;
-    this.bufTransformC2 = gl.createBuffer();
-  }
-  // Added for HW5
-  generateTransformC3() {
-    this.transformC3Generated = true;
-    this.bufTransformC3 = gl.createBuffer();
-  }
-  // Added for HW5
-  generateTransformC4() {
-    this.transformC4Generated = true;
-    this.bufTransformC4 = gl.createBuffer();
   }
 
   bindIdx(): boolean {
@@ -133,39 +127,39 @@ abstract class Drawable {
     return this.translateGenerated;
   }
 
+  bindTransformCol1(): boolean {
+    if (this.transformCol1Generated) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformCol1);
+    }
+    return this.transformCol1Generated;
+  }
+
+  bindTransformCol2(): boolean {
+    if (this.transformCol2Generated) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformCol2);
+    }
+    return this.transformCol2Generated;
+  }
+
+  bindTransformCol3(): boolean {
+    if (this.transformCol3Generated) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformCol3);
+    }
+    return this.transformCol3Generated;
+  }
+
+  bindTransformCol4(): boolean {
+    if (this.transformCol4Generated) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformCol4);
+    }
+    return this.transformCol4Generated;
+  }
+
   bindUV(): boolean {
     if (this.uvGenerated) {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.bufUV);
     }
     return this.uvGenerated;
-  }
-  // Added for HW5
-  bindTransformC1(): boolean {
-    if (this.transformC1Generated) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformC1);
-    }
-    return this.transformC1Generated;
-  }
-  // Added for HW5
-  bindTransformC2(): boolean {
-    if (this.transformC2Generated) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformC2);
-    }
-    return this.transformC2Generated;
-  }
-  // Added for HW5
-  bindTransformC3(): boolean {
-    if (this.transformC3Generated) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformC3);
-    }
-    return this.transformC3Generated;
-  }
-  // Added for HW5
-  bindTransformC4(): boolean {
-    if (this.transformC4Generated) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformC4);
-    }
-    return this.transformC4Generated;
   }
 
   elemCount(): number {

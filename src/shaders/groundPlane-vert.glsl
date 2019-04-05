@@ -1,13 +1,10 @@
 #version 300 es
-precision highp float;
 
-uniform vec3 u_Eye, u_Ref, u_Up;
-uniform vec2 u_Dimensions;
-uniform float u_Time; 
-uniform float u_Slider;
+uniform mat4 u_ViewProj;
+uniform float u_Time;
 
-in vec2 fs_Pos;
-out vec4 out_Col;
+in vec4 vs_Pos;
+out vec2 fs_Pos;
 
 vec2 smoothF(vec2 uv) {
     return uv * uv * (3.0 - 2.0 * uv);
@@ -50,38 +47,23 @@ float inWater(vec2 uv) {
   fbm /= .622;
   fbm = clamp(fbm, 0.0, 1.0);	
   if(fbm == 0.0){
-    return 1.0;
+    return 0.0;
   }
   else{
-    return 0.0;
+    return 1.0;
   }	
 }
 
-vec3 elevationMap(vec2 uv) {
-  vec2 offset = vec2(-1.1, -0.4);
-	float water = inWater(uv);
-	vec2 pos = uv + offset;
-	float noiseTerm = fbm(pos / 2.0);
-	noiseTerm = clamp((noiseTerm - 0.2), 0.0, 1.0);
-  if(water == 1.0){
-    // water
-    return vec3(0.0863, 0.2902, 0.9608);
-  }
-  else{
-    // land
-    return  vec3(0.3765, 0.7725, 0.1804) * vec3(0.0, (noiseTerm * 1.5), 0.0);
-  }		
-}
-vec3 getColor(float x, float y) {
-  float remapX = mix(-0.15, 0.35, x);
-	float remapY = mix(0.057, 0.557, y);
-	vec3 color = elevationMap(vec2(remapX, remapY));
-	return color;
-}
-
 void main() {
-  // final color	
-  float x = (fs_Pos.x + 1.0) / 2.0;
-	float y = (fs_Pos.y + 1.0) / 2.0;    
-	out_Col = vec4(getColor(x, y), 1.0);
+  fs_Pos = vs_Pos.xz;
+  vec3 pos = vec3(vs_Pos.x * 25.0, 0, vs_Pos.z * 25.0);
+  float xPos = (fs_Pos.x + 1.0) / 2.0;
+	float yPos = (fs_Pos.y + 1.0) / 2.0;
+  float remapX = mix(-0.15, 0.35, xPos);
+	float remapY = mix(0.057, 0.557, yPos);
+  float x = inWater(vec2(remapX, remapY));
+  if(x == 0.0){
+    pos.y -= 0.5;
+  }
+  gl_Position = u_ViewProj * vec4(pos.x, pos.y, pos.z, 1.0);
 }

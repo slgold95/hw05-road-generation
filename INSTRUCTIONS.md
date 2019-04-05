@@ -1,51 +1,59 @@
-# Homework 5: Road Generation
+# Homework 6: City Generation
 
 ## Stephanie Goldberg - slgold
-- Demo: https://slgold95.github.io/hw05-road-generation/
-- -![](image.png)
+- Demo: https://slgold95.github.io/hw06-city-generation/
+- Be sure to scroll out a bit from the initial camera position, and orient yourself to be looking down.
+- ![](allBuildings.png)
+- ![](city.png)
+- ![](city2.png)
 
 ## References
 - Noise: Class slides https://docs.google.com/presentation/d/e/2PACX-1vQAK1Xeb7GGqLoDFz_iu9JuXMb-qE9jqKbZDkrXNSybXweqeIn3xvv4LMxetcM9GEugoU0Q0Ft1qUH-/pub?start=false&loop=false&delayms=60000&slide=id.g4cae677c4f_0_852 and Book of Shaders for FBM and Worley Noise
 - [Procedural Modeling of Cities](proceduralCityGeneration.pdf)
 - Line Intersection: https://docs.google.com/presentation/d/e/2PACX-1vSXHVq2CajrWQT_OG0RULdZttOFukc8CMHGMe6Jt9mGOI5lpDoomY9PGJHoiZPq2U_32Uy_SzpXDSk-/pub?start=false&loop=false&delayms=60000&slide=id.g1e1b90fa28_0_451 and https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 - Rendering to a Texture: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+- Emily's [City Forgery](http://www.emilyhvo.com/city-forgery/) project for inspiration
+- IQ's lighting: [IQ's article on artistic lighting](http://iquilezles.org/www/articles/outdoorslighting/outdoorslighting.htm)
 
-## 2D Maps
-- When you first load the project, you are shown a basic land and water view.
-- Green coloring is for the land, and blue is for the water.
-- ![](basic.png)
-- Check box to see the Terrain Elevation Map: created with FBM and random functions
-- ![](terrainElevation.png)
-- Check box to see the Population Density Map: created with Worley Noise
-- ![](populationDensity.png)
-- Check both boxes to have Terrain Elevation and Population Density displayed at the same time:
-- ![](both.png)
-- Lighter coloring is for higher elevations
-- Lighter coloring is for more densely populated areas
-- Terrain Elevation and Population Density noise rendered to a texture: Would be used to guide the branching of roads from the highways (currently unsuccessful)
-- ![](textureShader.png)
-  
-## New Pseudo L-System Classes
-- Point: Class used to contain the position data for a point. Contains a method used for determining proximity of other points.
-- Edge: Class used to define edges. Uses points. Has information about if it is a highway or not, used for drawing different sized roads.
-- HTurtle: Turtle class used to expand the highways out. Each turtle has a direction to move in, an up vector, a right vector, a destination point that it will pursue, a point for keeping track of it's own position, a quaternion for the rotation, and arrays to store edges and points.
-- LSystemHighway: Initializes and expands HTurtles to create the highway structure. Starts from bottom right-ish area of the screen and grows outward. Contains stack of turtles, array for points, and array for edges to grow the highways.
-- NoiseFuncs: Used for noise calculations on the CPU to determine position of turtles (currently not being used correctly).
+## 3D Plane for Terrain
+- Change in the plane's elevation at water areas. There is a small slope between the land and water, with the water existing at a lower elevation than the land.
+- On the lefthand side of this image you can see where the land sinks down into the water:
+- ![](waterSlope.png)
 
-- Notes: The Highways do cross the water. Had major issues getting roads to branch from highways and creating complex highways, only have very basic highways. Trouble getting an interaction between the texture created and the existing highways. With more time, could hopefully have worked it out. From there, the roads would branch out of the highways and would be influenced by the population density and elevation of the map.
+## Roads
+- The instance rendered roads are drawn .1 in the y direction higher than the plane so they exist on top. They are created from square geometry.
+- Highways and roads above the terrain:
+- ![](roads.png)
 
-## Tunable GUI Parameters
-- Change Terrain Elevation - make the elevation higher as the slider value increases
-- ![](Elevation1.png)
-- ![](Elevation2.png)
-- Change Population Density - make the population density increase as the slider value increases
-- ![](Density1.png)
-- ![](Density2.png)
-- ![](Density3.png)
-- Change Highway Angle
--![](noAngle.png)
--![](angle.png)
+## 2D Grid, Points, and Buildings
+- 2D Grid created on CPU used to "rasterize" roads in the grid. Keeps track of cells in which a building can or cannot be built. Open spaces are good to build on, but water, roads, and highway areas are not. 
+- Created a collection of randomly scattered 2D points within the 2D grid used for building placement. No points are allowed in cells that are already occupied by water, roads, or highways.
+- Building geometry based on [Real-time Procedural Generation of 'Pseudo Infinite' Cities](procedural_infinite_cities.pdf). Starting with cube geometry and a defined height, select a corner and lower the whole cube down to create a lower level of the building. "Grow" downwards, and decrement the height value, until the height value becomes negative (less than 0) then halt building "growth".
+ 
 
+## Procedural Buildings
+- The higher the population density is in the city, more (and taller) buildings are created there. On the outskirts of city hub areas, less and smaller buildings exist.
+- Building textures utilize noise functions. Going for a stylized city-esque aethestic, I also had buildings appear to change color with the day/night cycle of the sky.
+- Worley Noise used to determine population density:
+- ![](waterSlope.png)
+- Three types of buildings: Houses, Residential Buildings, and Skyscrapers.
+- Small homes have two windows and are 2 stories maximum height.
+  + Small Homes:
+  + ![](smallHouses.png) 
+- Residential buildings contain small windows to resemble the appearance of apartment buildings, and are multiple stories high.
+- Skyscrapers contain floor-wide windows to resemble office spaces and are the tallest buildings.
+  + Residential buildings in the foreground and Skyscrapers in the background:
+  + ![](buildingTypes.png) 
 
+## Lighting
+-  Multiple directional light sources and lambertian shading were used to ensure that there are no black faces on the buildings.
+- Procedural sky background that includes clouds, made with FBM and noise. Changes from morning to sunset time on a cycle. The lights in the windows of the buildings turn on and off with the day/night cycle. (The camera needs to be positioned just above the terrain without any wild rotation to keep the cloud horizon in view).
+- ![](day.png)
+- ![](night.png)
+- ![](midday.png)
 
-
+## GUI Options
+- Checkboxes to Show Terrain Elevation, Population Density, and both Terrain Elevation and Population Density
+- Rendering the Buildings can be turned on and off:
+- ![](noBuildings.png)
+- ![](yesBuildings.png)
